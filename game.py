@@ -1,3 +1,4 @@
+import math
 import sys
 import pygame
 import random
@@ -10,6 +11,7 @@ H = 600
 g = 9.81
 
 GROUND = (0, 128, 0)
+TANK_RADIUS = 15
 
 screen_heights = []
 terrain = pygame.Surface((W, H))
@@ -26,6 +28,7 @@ start_vs = [0.0, 0.0]
 tank_xs = [30, W - 30]
 tank_ys = [0.0, 0.0]
 
+current_player = 0
 
 def gen_terrain(terrain):
     h = 0
@@ -51,11 +54,21 @@ def gen_terrain(terrain):
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
+
 def setup_tanks():
     for i, x in enumerate(tank_xs):
         h = screen_heights[int(x)]
         y = H - h
         tank_ys[i] = y
+
+
+def distance2(x0, y0, x1, y1):
+    return (x0 - x1) ** 2 + (y0 - y1) ** 2
+
+
+def next_player():
+    current_player ^= 1
+    shot_in_flight = False
 
 
 def load_sprites():
@@ -73,10 +86,6 @@ def draw_tanks():
         screen.blit(sprite, (x - w // 2, y - h))
 
 
-def distance(x0, y0, x1, y1):
-    return (x0 - x1) ** 2 + (y0 - y1) ** 2
-
-
 def update(dt):
     global shot_in_flight
     if shot_in_flight:
@@ -87,8 +96,33 @@ def update(dt):
         colour = colour.r, colour.g, colour.b
         if colour == GROUND:
             # We hit the ground
-            shot_in_flight = False
-
+            next_player()
+        for i in range(2):
+            if (distance2(shot_x, shot_y, tank_xs[i], tank_ys[i]) <
+                TANK_RADIUS ** 2):
+                # tank with index i got hit
+                next_player()
+                break
+        if shot_x < 0 or shot_x > W:
+            next_player()
+    ## if <down is pressed>:
+    ##     start_vs[current_player] = max(start_vs[current_player] - 0.1, 0.1)
+    ## if <up is pressed>:
+    ##     start_vs[current_player] = min(start_vs[current_player] + 0.1, 100.0)
+    ## if <left is pressed>:
+    ##     angles[current_player] = max(angles[current_player] - 0.5, 0.0)
+    ## if <right is pressed>:
+    ##     angles[current_player] = min(angles[current_player] + 0.5, 180.0)
+    ## if <space is pressed>:
+    ##     shot_in_flight = True
+    ##     shot_x = (tank_xs[current_player] +
+    ##               math.cos(math.radians(angles[current_player]) * TANK_RADIUS))
+    ##     shot_y = (tank_ys[current_player] +
+    ##               math.sin(math.radians(angles[current_player]) * TANK_RADIUS))
+    ##     shot_v_x = (math.cos(math.radians(angles[current_player])) *
+    ##                 start_vs[current_player])
+    ##     shot_v_y = (math.sin(math.radians(angles[current_player])) *
+    ##                 start_vs[current_player])
 
 def draw():
     screen.fill((50, 100, 255))
@@ -101,8 +135,6 @@ def draw():
     screen.blit(font.render(vtext, True, (255,) * 3), (10, H - 50))
 
 
-
-current_player = 0
 MIN_V = 10
 MAX_V = 100
 
