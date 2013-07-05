@@ -8,6 +8,12 @@ GROUND = (0, 128, 0)
 
 terrain = pygame.Surface((W, H))
 
+shot_in_flight = False
+shot_x = 0.0
+shot_y = 0.0
+shot_v_x = 0.0
+shot_v_y = 0.0
+
 
 def gen_terrain(terrain):
     h = 0
@@ -33,7 +39,7 @@ def gen_terrain(terrain):
 
 
 def update(dt):
-    pass
+    
 
 
 def draw():
