@@ -67,6 +67,7 @@ def distance2(x0, y0, x1, y1):
 
 
 def next_player():
+    global current_player, shot_in_flight
     current_player ^= 1
     shot_in_flight = False
 
@@ -87,11 +88,11 @@ def draw_tanks():
 
 
 def update(dt):
-    global shot_in_flight
+    global shot_in_flight, shot_x, shot_y, shot_v_y
     if shot_in_flight:
         shot_x += dt * shot_v_x
         shot_y += dt * shot_v_y
-        shot_v_y -= g * dt
+        shot_v_y += g * dt
         colour = terrain.get_at((shot_x, shot_y))
         colour = colour.r, colour.g, colour.b
         if colour == GROUND:
@@ -147,11 +148,11 @@ def process_input():
         shot_in_flight = True
         shot_x = (tank_xs[current_player] +
                   math.cos(math.radians(angles[current_player]) * TANK_RADIUS))
-        shot_y = (tank_ys[current_player] +
+        shot_y = (tank_ys[current_player] -
                   math.sin(math.radians(angles[current_player]) * TANK_RADIUS))
         shot_v_x = (math.cos(math.radians(angles[current_player])) *
                     start_vs[current_player])
-        shot_v_y = (math.sin(math.radians(angles[current_player])) *
+        shot_v_y = (-math.sin(math.radians(angles[current_player])) *
                     start_vs[current_player])
 
 
