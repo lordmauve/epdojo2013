@@ -25,7 +25,7 @@ shot_v_y = 0.0
 # angle and start velocity for each player
 angles = [0.0, 0.0]
 start_vs = [0.0, 0.0]
-tank_xs = [0.0, 0.0]
+tank_xs = [30, W - 30]
 tank_ys = [0.0, 0.0]
 
 current_player = 0
@@ -54,12 +54,22 @@ def gen_terrain(terrain):
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
+
+def setup_tanks():
+    for i, x in enumerate(tank_xs):
+        h = screen_heights[int(x)]
+        y = H - h
+        tank_ys[i] = y
+
+
 def distance2(x0, y0, x1, y1):
     return (x0 - x1) ** 2 + (y0 - y1) ** 2
+
 
 def next_player():
     current_player ^= 1
     shot_in_flight = False
+
 
 def load_sprites():
     global tank1_sprite, tank2_sprite, font
@@ -72,7 +82,8 @@ def draw_tanks():
     for x, y, sprite in zip(
         tank_xs, tank_ys, itertools.cycle((tank1_sprite, tank2_sprite))
         ):
-        screen.blit(sprite, (x, y))
+        w, h = sprite.get_size()
+        screen.blit(sprite, (x - w // 2, y - h))
 
 
 def update(dt):
@@ -107,9 +118,6 @@ def draw():
     screen.blit(font.render(vtext, True, (255,) * 3), (10, H - 50))
 
 
-
-
-current_player = 0
 MIN_V = 10
 MAX_V = 100
 
@@ -152,6 +160,7 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode((W, H))
     load_sprites()
     gen_terrain(terrain)
+    setup_tanks()
 
     clock = pygame.time.Clock()
     while True:
