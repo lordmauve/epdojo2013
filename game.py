@@ -46,6 +46,9 @@ def gen_terrain(terrain):
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
+def distance(x0, y0, x1, y1):
+    return (x0 - x1) ** 2 + (y0 - y1) ** 2
+
 def update(dt):
     if shot_in_flight:
         shot_x += dt * shot_v_x
