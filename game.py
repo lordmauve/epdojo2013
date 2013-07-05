@@ -39,7 +39,7 @@ def gen_terrain(terrain):
 
 
 def update(dt):
-    
+    pass
 
 
 def draw():
