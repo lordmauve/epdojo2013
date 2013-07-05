@@ -1,6 +1,8 @@
 import math
+import sys
 import pygame
 import random
+import itertools
 
 FPS = 30
 W = 800
@@ -11,6 +13,7 @@ g = 9.81
 GROUND = (0, 128, 0)
 TANK_RADIUS = 15
 
+screen_heights = []
 terrain = pygame.Surface((W, H))
 
 shot_in_flight = False
@@ -47,6 +50,7 @@ def gen_terrain(terrain):
     for x, h in enumerate(heights):
         frac = (h - min_h) / hrange
         screen_h = int(bottom + screen_range * frac + 0.5)
+        screen_heights.append(screen_h)
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
@@ -57,7 +61,22 @@ def next_player():
     current_player ^= 1
     shot_in_flight = False
 
+def load_sprites():
+    global tank1_sprite, tank2_sprite, font
+    tank1_sprite = pygame.image.load('tank1.png').convert_alpha()
+    tank2_sprite = pygame.image.load('tank2.png').convert_alpha()
+    font = pygame.font.SysFont('', 16)
+
+
+def draw_tanks():
+    for x, y, sprite in zip(
+        tank_xs, tank_ys, itertools.cycle((tank1_sprite, tank2_sprite))
+        ):
+        screen.blit(sprite, (x, y))
+
+
 def update(dt):
+    global shot_in_flight
     if shot_in_flight:
         shot_x += dt * shot_v_x
         shot_y += dt * shot_v_y
@@ -97,16 +116,56 @@ def update(dt):
 def draw():
     screen.fill((50, 100, 255))
     screen.blit(terrain, (0, 0))
+    draw_tanks()
+
+    atext = 'Angle: %ddeg' % angles[current_player]
+    vtext = 'Power: %d%%' % start_vs[current_player]
+    screen.blit(font.render(atext, True, (255,) * 3), (10, H - 30))
+    screen.blit(font.render(vtext, True, (255,) * 3), (10, H - 50))
+
+
+
+
+current_player = 0
+MIN_V = 10
+MAX_V = 100
+
+MIN_ANG = 0
+MAX_ANG = 180
+
+
+def clamp(v, minv, maxv):
+    return max(minv, min(v, maxv))
+
+
+def process_input():
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP]:
+        angles[current_player] = clamp(angles[current_player] + 1, MIN_ANG, MAX_ANG)
+    elif keys[pygame.K_DOWN]:
+        angles[current_player] = clamp(angles[current_player] - 1, MIN_ANG, MAX_ANG)
+
+    if keys[pygame.K_RIGHT]:
+        start_vs[current_player] = clamp(start_vs[current_player] + 1, MIN_V, MAX_V)
+    elif keys[pygame.K_LEFT]:
+        start_vs[current_player] = clamp(start_vs[current_player] - 1, MIN_V, MAX_V)
 
 
 if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode((W, H))
+    load_sprites()
     gen_terrain(terrain)
 
     clock = pygame.time.Clock()
     while True:
         dt = clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    sys.exit(0)
+            print event
+        process_input()
         update(dt)
         draw()
         pygame.display.flip()
