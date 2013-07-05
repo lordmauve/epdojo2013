@@ -7,9 +7,15 @@ H = 600
 
 terrain = pygame.Surface((W, H))
 
+shot_in_flight = False
+shot_x = 0.0
+shot_y = 0.0
+shot_v_x = 0.0
+shot_v_y = 0.0
+
 
 def update(dt):
-    pass
+    
 
 
 def draw():
