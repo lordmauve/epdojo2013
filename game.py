@@ -6,6 +6,7 @@ W = 800
 H = 600
 GROUND = (0, 128, 0)
 
+screen_heights = []
 terrain = pygame.Surface((W, H))
 
 shot_in_flight = False
@@ -35,7 +36,17 @@ def gen_terrain(terrain):
     for x, h in enumerate(heights):
         frac = (h - min_h) / hrange
         screen_h = int(bottom + screen_range * frac + 0.5)
+        screen_heights.append(screen_h)
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
+
+
+tank1_sprite = pygame.image.load('tank1.png').convert_alpha()
+tank2_sprite = pygame.image.load('tank2.png').convert_alpha()
+
+
+def draw_tanks():
+    screen.blit(tank1_sprite, tank1_pos)
+    screen.blit(tank2_sprite, tank2_pos)
 
 
 def update(dt):
