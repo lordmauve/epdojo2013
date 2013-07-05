@@ -94,24 +94,7 @@ def update(dt):
                 break
         if shot_x < 0 or shot_x > W:
             next_player()
-    ## if <down is pressed>:
-    ##     start_vs[current_player] = max(start_vs[current_player] - 0.1, 0.1)
-    ## if <up is pressed>:
-    ##     start_vs[current_player] = min(start_vs[current_player] + 0.1, 100.0)
-    ## if <left is pressed>:
-    ##     angles[current_player] = max(angles[current_player] - 0.5, 0.0)
-    ## if <right is pressed>:
-    ##     angles[current_player] = min(angles[current_player] + 0.5, 180.0)
-    ## if <space is pressed>:
-    ##     shot_in_flight = True
-    ##     shot_x = (tank_xs[current_player] +
-    ##               math.cos(math.radians(angles[current_player]) * TANK_RADIUS))
-    ##     shot_y = (tank_ys[current_player] +
-    ##               math.sin(math.radians(angles[current_player]) * TANK_RADIUS))
-    ##     shot_v_x = (math.cos(math.radians(angles[current_player])) *
-    ##                 start_vs[current_player])
-    ##     shot_v_y = (math.sin(math.radians(angles[current_player])) *
-    ##                 start_vs[current_player])
+
 
 def draw():
     screen.fill((50, 100, 255))
@@ -139,6 +122,8 @@ def clamp(v, minv, maxv):
 
 
 def process_input():
+    if shot_in_flight:
+        return
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
         angles[current_player] = clamp(angles[current_player] + 1, MIN_ANG, MAX_ANG)
@@ -149,6 +134,17 @@ def process_input():
         start_vs[current_player] = clamp(start_vs[current_player] + 1, MIN_V, MAX_V)
     elif keys[pygame.K_LEFT]:
         start_vs[current_player] = clamp(start_vs[current_player] - 1, MIN_V, MAX_V)
+
+    if keys[pygame.K_SPACE]:
+        shot_in_flight = True
+        shot_x = (tank_xs[current_player] +
+                  math.cos(math.radians(angles[current_player]) * TANK_RADIUS))
+        shot_y = (tank_ys[current_player] +
+                  math.sin(math.radians(angles[current_player]) * TANK_RADIUS))
+        shot_v_x = (math.cos(math.radians(angles[current_player])) *
+                    start_vs[current_player])
+        shot_v_y = (math.sin(math.radians(angles[current_player])) *
+                    start_vs[current_player])
 
 
 if __name__ == '__main__':
