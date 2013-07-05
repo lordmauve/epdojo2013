@@ -91,7 +91,11 @@ def update(dt):
     if shot_in_flight:
         shot_x += dt * shot_v_x
         shot_y += dt * shot_v_y
+        if not (0 <= shot_x <= W) or shot_y > HEIGHT:
+            next_player()
         shot_v_y -= g * dt
+        if shot_y < 0:
+            return
         colour = terrain.get_at((shot_x, shot_y))
         colour = colour.r, colour.g, colour.b
         if colour == GROUND:
