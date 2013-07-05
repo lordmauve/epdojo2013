@@ -8,6 +8,7 @@ H = 600
 g = 9.81
 
 GROUND = (0, 128, 0)
+TANK_RADIUS = 15
 
 terrain = pygame.Surface((W, H))
 
@@ -22,6 +23,8 @@ angles = [0.0, 0.0]
 start_vs = [0.0, 0.0]
 tank_xs = [0.0, 0.0]
 tank_ys = [0.0, 0.0]
+
+current_player = 0
 
 def gen_terrain(terrain):
     h = 0
@@ -46,8 +49,12 @@ def gen_terrain(terrain):
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
-def distance(x0, y0, x1, y1):
+def distance2(x0, y0, x1, y1):
     return (x0 - x1) ** 2 + (y0 - y1) ** 2
+
+def next_player():
+    current_player ^= 1
+    shot_in_flight = False
 
 def update(dt):
     if shot_in_flight:
@@ -58,8 +65,21 @@ def update(dt):
         colour = colour.r, colour.g, colour.b
         if colour == GROUND:
             # We hit the ground
-            shot_in_flight = False
-
+            next_player()
+        for i in range(2):
+            if (distance2(shot_x, shot_y, tank_xs[i], tank_ys[i]) <
+                TANK_RADIUS ** 2):
+                # tank with index i got hit
+                next_player()
+                break
+        if shot_x < 0 or shot_x > W:
+            next_player()
+    if <down is pressed>:
+        start_vs[current_player] = max(start_vs[current_player] - 0.1, 0.1)
+    if <up is pressed>:
+        start_vs[current_player] = min(start_vs[current_player] + 0.1, 100.0)
+    if <left is pressed>:
+        angles[
 
 def draw():
     screen.fill((50, 100, 255))
