@@ -67,6 +67,7 @@ def distance2(x0, y0, x1, y1):
 
 
 def next_player():
+    global current_player, shot_in_flight
     current_player ^= 1
     shot_in_flight = False
 
@@ -87,20 +88,23 @@ def draw_tanks():
 
 
 def update(dt):
-    global shot_in_flight
+    global shot_in_flight, shot_x, shot_y, shot_v_y
     if shot_in_flight:
         shot_x += dt * shot_v_x
         shot_y += dt * shot_v_y
-        if not (0 <= shot_x <= W) or shot_y > HEIGHT:
+        if not (0 <= shot_x < W) or shot_y >= H:
             next_player()
-        shot_v_y -= g * dt
+            return
+        print shot_x, shot_y
+        shot_v_y += g * dt
         if shot_y < 0:
             return
-        colour = terrain.get_at((shot_x, shot_y))
+        colour = terrain.get_at((int(shot_x), int(shot_y)))
         colour = colour.r, colour.g, colour.b
         if colour == GROUND:
             # We hit the ground
             next_player()
+            return
         for i in range(2):
             if (distance2(shot_x, shot_y, tank_xs[i], tank_ys[i]) <
                 TANK_RADIUS ** 2):
@@ -121,6 +125,9 @@ def draw():
     screen.blit(font.render(atext, True, (255,) * 3), (10, H - 30))
     screen.blit(font.render(vtext, True, (255,) * 3), (10, H - 50))
 
+    if shot_in_flight:
+        pygame.draw.circle(screen, (255,) * 3, (int(shot_x), int(shot_y)), 2, 0)
+
 
 MIN_V = 10
 MAX_V = 100
@@ -134,6 +141,7 @@ def clamp(v, minv, maxv):
 
 
 def process_input():
+    global shot_in_flight, shot_x, shot_y, shot_v_x, shot_v_y
     if shot_in_flight:
         return
     keys = pygame.key.get_pressed()
@@ -151,12 +159,13 @@ def process_input():
         shot_in_flight = True
         shot_x = (tank_xs[current_player] +
                   math.cos(math.radians(angles[current_player]) * TANK_RADIUS))
-        shot_y = (tank_ys[current_player] +
+        shot_y = (tank_ys[current_player] -
                   math.sin(math.radians(angles[current_player]) * TANK_RADIUS))
         shot_v_x = (math.cos(math.radians(angles[current_player])) *
                     start_vs[current_player])
-        shot_v_y = (math.sin(math.radians(angles[current_player])) *
+        shot_v_y = (-math.sin(math.radians(angles[current_player])) *
                     start_vs[current_player])
+        print shot_x, shot_y, shot_v_x, shot_v_y
 
 
 if __name__ == '__main__':
@@ -173,7 +182,6 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit(0)
-            print event
         process_input()
         update(dt)
         draw()
