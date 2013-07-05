@@ -23,8 +23,9 @@ shot_v_y = 0.0
 # angle and start velocity for each player
 angles = [0.0, 0.0]
 start_vs = [0.0, 0.0]
-tank_xs = [0.0, 0.0]
+tank_xs = [30, W - 30]
 tank_ys = [0.0, 0.0]
+
 
 def gen_terrain(terrain):
     h = 0
@@ -50,6 +51,13 @@ def gen_terrain(terrain):
         pygame.draw.line(terrain, GROUND, (x, H), (x, H - screen_h))
 
 
+def setup_tanks():
+    for i, x in enumerate(tank_xs):
+        h = screen_heights[int(x)]
+        y = H - h
+        tank_ys[i] = y
+
+
 def load_sprites():
     global tank1_sprite, tank2_sprite, font
     tank1_sprite = pygame.image.load('tank1.png').convert_alpha()
@@ -61,7 +69,8 @@ def draw_tanks():
     for x, y, sprite in zip(
         tank_xs, tank_ys, itertools.cycle((tank1_sprite, tank2_sprite))
         ):
-        screen.blit(sprite, (x, y))
+        w, h = sprite.get_size()
+        screen.blit(sprite, (x - w // 2, y - h))
 
 
 def distance(x0, y0, x1, y1):
@@ -90,7 +99,6 @@ def draw():
     vtext = 'Power: %d%%' % start_vs[current_player]
     screen.blit(font.render(atext, True, (255,) * 3), (10, H - 30))
     screen.blit(font.render(vtext, True, (255,) * 3), (10, H - 50))
-
 
 
 
@@ -124,6 +132,7 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode((W, H))
     load_sprites()
     gen_terrain(terrain)
+    setup_tanks()
 
     clock = pygame.time.Clock()
     while True:
